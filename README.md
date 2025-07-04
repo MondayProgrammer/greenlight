@@ -1,3 +1,3 @@
 # Greenligh
 
-An API made with Golang and MySQL.
+An API made with Golang and PostgreSQL.
