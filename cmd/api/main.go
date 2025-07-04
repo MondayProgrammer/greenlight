@@ -6,7 +6,6 @@ import (
 	"expvar"
 	"flag"
 	"fmt"
-	"net/http"
 	"os"
 	"runtime"
 	"strings"
@@ -48,6 +47,9 @@ type config struct {
 	cors struct {
 		trustedOrigins []string
 	}
+	jwt struct {
+		secret string
+	}
 }
 
 type application struct {
@@ -84,6 +86,8 @@ func main() {
 		cfg.cors.trustedOrigins = strings.Fields(val)
 		return nil
 	})
+
+	flag.StringVar(&cfg.jwt.secret, "jwt-secret", "", "JWT secret")
 
 	displayVersion := flag.Bool("version", false, "Display version and exit")
 
@@ -125,9 +129,6 @@ func main() {
 		models: data.NewModels(db),
 		mailer: mailer.New(cfg.smtp.host, cfg.smtp.port, cfg.smtp.username, cfg.smtp.password, cfg.smtp.sender),
 	}
-
-	mux := http.NewServeMux()
-	mux.HandleFunc("/v1/healthcheck", app.healthcheckHandler)
 
 	err = app.serve()
 	if err != nil {
